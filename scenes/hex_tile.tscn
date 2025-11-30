@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8vqx7k5ywj4n"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
+albedo_color = Color(0.4, 0.7, 0.3, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hex"]
+material = SubResource("StandardMaterial3D_grass")
+top_radius = 2.0
+bottom_radius = 2.0
+height = 0.5
+radial_segments = 6
+
+[node name="HexTile" type="Node3D"]
+
+[node name="HexMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_hex")
+
