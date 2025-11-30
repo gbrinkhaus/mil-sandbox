@@ -1,0 +1,105 @@
+      
+Movement
+
+*****
+Move and fight
+
+***** 
+Undo move
+
+***
+- go autom. to far away targets
+
+***
+- separate attack from move
+
+**
+- arty: no attack move
+
+UI
+
+****
+- Show city info on rollover or button(?)
+
+****
+- Understand income better
+
+
+- better fonts for icons
+
+
+- city capture should cost
+
+
+- larger income text
+- see value-add
+- show start screen /  money at start of round
+
+
+- see power by base size
+
+- more unit expense
+
+- repair in foreign country
+- separate move/fight
+
+- move cam to selected unit
+
+- can see income of cities
+
+- ugly font
+
+Gameplay
+
+***
+- units only in strong enough cities
+
+**
+- inf less indu
+- cav less indu
+- arty more exp.
+
+*****
+- network edition
+
+*****
+- AI opponents
+
+
+- complete map
+- win
+
+
+- ship graphics
+
+
+x next unit bug
+x switch to 2nd unit movemap bug
+x move across pacific
+x sound
+
+x - ship movement
+x - update money
+x - repair function
+x - shield function
+x - show player color
+x next unit button
+x unit maintenance cost
+
+x - resources in map
+x - collect resources
+x - show resources
+
+x - buy troops
+x place troops
+
+x - show troops movement
+x - move troops
+x - battle
+x capture citys
+x - switch map fields
+x move text with unit
+
+x - Understand if I can still buy
+x - Understand if units still available
+

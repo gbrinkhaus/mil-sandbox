@@ -1,0 +1,5 @@
+a hex based map with evenly sized, exactly hexagonal tiles for a strategy game showing these elements: grassland, a village, a small city, a medium city, a big city, tundra, taiga, jungle and ice in turn of the century style.
+
+a hex based map with evenly sized, hexagonal tiles for a strategy game showing: grassland, a village, a small city, a medium city, a very large city, dark forest, jungle, mountains, shore and icy areas in bright watercolor and ink, turn of the century style.
+
+a hex based map evenly sized,  hexagonal tiles for a strategy game showing: a medium city, a very large city and streets in intricate detail, in 3d isometric view, in bright watercolor and ink, in "turn of the century" style.
