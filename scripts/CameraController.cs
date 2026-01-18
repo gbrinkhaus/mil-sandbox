@@ -9,25 +9,28 @@ namespace MilSandbox.Scripts;
 /// </summary>
 public partial class CameraController : Camera3D
 {
-	private const int PAN_SPEED = 20;
-	private const int ZOOM_SPEED = 5;
+	// FOV constraints
 	private const int MIN_FOV = 10;
 	private const int MAX_FOV = 90;
-	private const float MOUSE_PAN_SPEED = 0.1f;
-	private const float MOUSE_ROTATE_SPEED = 0.01f;
 	
-	// Keyboard acceleration/deceleration
+	// Keyboard panning
 	private const float KEYBOARD_ACCELERATION = 60f;
 	private const float KEYBOARD_MAX_SPEED = 30f;
 	private const float KEYBOARD_DECELERATION = 100f;
 	
-	// Mouse acceleration/deceleration
+	// Mouse panning
+	private const float MOUSE_PAN_SPEED = 0.1f;
 	private const float MOUSE_PAN_ACCELERATION = 500f;
 	private const float MOUSE_PAN_MAX_SPEED = 500f;
 	private const float MOUSE_PAN_DECELERATION = 2000f;
+	
+	// Mouse rotation
+	private const float MOUSE_ROTATE_SPEED = 0.01f;
 	private const float MOUSE_ROTATE_ACCELERATION = 200f;
 	private const float MOUSE_ROTATE_MAX_SPEED = 50f;
 	private const float MOUSE_ROTATE_DECELERATION = 1000f;
+	
+	// Mouse zoom
 	private const float MOUSE_ZOOM_ACCELERATION = 5000f;
 	private const float MOUSE_ZOOM_MAX_SPEED = 3000f;
 	private const float MOUSE_ZOOM_DECELERATION = 20000f;
