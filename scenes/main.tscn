@@ -1,14 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://ba12mnlraweih"]
-
-[ext_resource type="PackedScene" uid="uid://c8vqx7k5ywj4n" path="res://scenes/hex_tile.tscn" id="1_hex"]
+[gd_scene format=3 uid="uid://dvt54ywgwbi50"]
 
 [node name="Main" type="Node3D"]
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.99615055, -0.087158285, 0.009364992, 0.058032718, 0.7357681, 0.6747425, -0.06569987, -0.6716016, 0.7379938, 0, 5, 5)
-fov = 85.6968
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 3, 0)
-
-[node name="HexTile" parent="." instance=ExtResource("1_hex")]

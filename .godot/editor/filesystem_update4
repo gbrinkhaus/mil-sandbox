@@ -1,1 +1,7 @@
-res://scenes/main.tscn
+res://scenes/hex_tile.tscn
+res://scripts/GameManager.cs
+res://scripts/HexCoordinates.cs
+res://godot-migration-assets/scripts/BattleButtonController.cs
+res://scripts/autoload/GameConstants.cs
+res://scripts/HexMesh.cs
+res://scripts/tools/MapConverter.cs

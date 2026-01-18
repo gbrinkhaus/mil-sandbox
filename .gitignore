@@ -1,0 +1,39 @@
+# Godot Editor Cache
+.godot/
+*.import
+
+# Godot Mono
+.mono/
+mono_crash*.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# C# / .NET
+bin/
+obj/
+*.csproj.user
+*.sln.user
+*.suo
+*.user
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+Debug/
+Release/
+x64/
+x86/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.bak
