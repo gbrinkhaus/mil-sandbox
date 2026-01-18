@@ -49,6 +49,11 @@ public partial class GameConstants : Node
         "seaice"    // 8
     ];
 
+    public static string GetTerrainName(int terrainType)
+    {
+        return terrainType >= 0 && terrainType < FIELD_NAMES.Length ? FIELD_NAMES[terrainType] : "unknown";
+    }
+
     // Countries
     public static readonly string[] COUNTRIES = [
         "Ägypten", "Afghanistan", "Alaska", "Alberta/BC", "Argentinien", "Brasilien",

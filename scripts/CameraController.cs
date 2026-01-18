@@ -5,13 +5,14 @@ namespace MilSandbox.Scripts;
 /// <summary>
 /// Camera controller for map navigation
 /// WASD - Pan camera
-/// Mouse scroll - Zoom in/out
+/// R/F - Move camera up/down
+/// Mouse scroll - Zoom in/out + move camera up/down
 /// </summary>
 public partial class CameraController : Camera3D
 {
 	// FOV constraints
 	private const int MIN_FOV = 10;
-	private const int MAX_FOV = 90;
+	private const int MAX_FOV = 50;
 	
 	// Keyboard panning
 	private const float KEYBOARD_ACCELERATION = 60f;
@@ -31,9 +32,13 @@ public partial class CameraController : Camera3D
 	private const float MOUSE_ROTATE_DECELERATION = 1000f;
 	
 	// Mouse zoom
-	private const float MOUSE_ZOOM_ACCELERATION = 5000f;
-	private const float MOUSE_ZOOM_MAX_SPEED = 3000f;
-	private const float MOUSE_ZOOM_DECELERATION = 20000f;
+	private const float MOUSE_ZOOM_ACCELERATION = 800f;
+	private const float MOUSE_ZOOM_MAX_SPEED = 2000f;
+	private const float MOUSE_ZOOM_DECELERATION = 3000f;
+	private const float MOUSE_ZOOM_VERTICAL_SPEED = 0.1f;  // Vertical movement per scroll
+
+	// Keyboard vertical movement
+	private const float KEYBOARD_VERTICAL_MAX_SPEED = 20f;
 	
 	private bool middleMousePressed = false;
 	private bool rightMousePressed = false;
@@ -44,6 +49,7 @@ public partial class CameraController : Camera3D
 	private Vector3 mouseRotateVelocity = Vector3.Zero;  // Current mouse rotation velocity
 	private float mouseZoomVelocity = 0f;  // Current mouse zoom velocity
 	private int mouseZoomDirection = 0;  // 1 for zoom in, -1 for zoom out, 0 for none
+	private float keyboardVerticalVelocity = 0f;  // Current keyboard vertical movement velocity
 
 	public override void _Ready()
 	{
@@ -57,7 +63,7 @@ public partial class CameraController : Camera3D
 
 	private void HandlePanning(float delta)
 	{
-		// KEYBOARD MOVEMENT
+		// KEYBOARD MOVEMENT (horizontal)
 		var input = Vector3.Zero;
 
 		if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up))
@@ -84,6 +90,24 @@ public partial class CameraController : Camera3D
 
 		// Apply keyboard velocity to position
 		Position += keyboardVelocity * delta;
+
+		// KEYBOARD VERTICAL MOVEMENT (R/F keys)
+		var verticalInput = 0f;
+		if (Input.IsKeyPressed(Key.R))
+			verticalInput = 1f;
+		if (Input.IsKeyPressed(Key.F))
+			verticalInput = -1f;
+
+		if (verticalInput != 0f)
+		{
+			keyboardVerticalVelocity = Mathf.Lerp(keyboardVerticalVelocity, verticalInput * KEYBOARD_VERTICAL_MAX_SPEED, KEYBOARD_ACCELERATION * delta / KEYBOARD_VERTICAL_MAX_SPEED);
+		}
+		else
+		{
+			keyboardVerticalVelocity = Mathf.Lerp(keyboardVerticalVelocity, 0f, KEYBOARD_DECELERATION * delta / KEYBOARD_VERTICAL_MAX_SPEED);
+		}
+
+		Position += new Vector3(0, keyboardVerticalVelocity * delta, 0);
 
 		// MOUSE MOVEMENT
 		if (middleMousePressed && mouseMotionDelta != Vector2.Zero)
@@ -122,6 +146,10 @@ public partial class CameraController : Camera3D
 			// Accelerate zoom velocity
 			var targetZoomVel = mouseZoomDirection * MOUSE_ZOOM_MAX_SPEED;
 			mouseZoomVelocity = Mathf.Lerp(mouseZoomVelocity, targetZoomVel, MOUSE_ZOOM_ACCELERATION * delta / MOUSE_ZOOM_MAX_SPEED);
+			
+			// Move camera up when zooming out, down when zooming in
+			Position += new Vector3(0, mouseZoomDirection * MOUSE_ZOOM_VERTICAL_SPEED, 0);
+			mouseZoomDirection = 0;  // Reset direction immediately after this frame
 		}
 		else
 		{
@@ -153,18 +181,10 @@ public partial class CameraController : Camera3D
 				mouseZoomDirection = -1;  // Zoom in (decrease FOV)
 				GetTree().Root.SetInputAsHandled();
 			}
-			else if (mouseEvent.ButtonIndex == MouseButton.WheelUp && !mouseEvent.Pressed)
-			{
-				mouseZoomDirection = 0;
-			}
 			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown && mouseEvent.Pressed)
 			{
 				mouseZoomDirection = 1;  // Zoom out (increase FOV)
 				GetTree().Root.SetInputAsHandled();
-			}
-			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown && !mouseEvent.Pressed)
-			{
-				mouseZoomDirection = 0;
 			}
 		}
 		else if (@event is InputEventMouseMotion mouseMotion)

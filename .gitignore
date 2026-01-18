@@ -37,3 +37,7 @@ x86/
 *.temp
 *~
 *.bak
+
+# Agent files synced from project-templates
+.github/agents/
+sync-agents.sh

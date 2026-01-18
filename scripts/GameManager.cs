@@ -15,6 +15,7 @@ using MilSandbox.Scripts.Autoload;
 /// </summary>
 public partial class GameManager : Node
 {
+	public static WorldMap CurrentWorldMap { get; set; }
 	public override void _Ready()
 	{
 		GD.Print("=== Game Manager Ready ===");
