@@ -14,12 +14,17 @@ using MilSandbox.Scripts.Autoload;
 public partial class WorldMap : Node3D
 {
 	private const string MAP_DATA_PATH = "res://data/map_data.json";
+	private const string HEX_MODEL_PATH = "res://models/3d_hex.obj";
 	private Dictionary<int, Material> terrainMaterials = new();
 	private Node3D tileContainer;
+	private Mesh hexMesh;
 
 	public override void _Ready()
 	{
 		GD.Print("=== WorldMap Ready ===");
+		
+		// Load hex mesh model
+		LoadHexMesh();
 		
 		// Create container for tiles
 		tileContainer = new Node3D { Name = "TileContainer" };
@@ -85,6 +90,14 @@ public partial class WorldMap : Node3D
 				{
 					CreateHexTile(tileElement);
 					tileCount++;
+					if (tileCount == 1)
+					{
+						// Debug first tile
+						int x = tileElement.GetProperty("x").GetInt32();
+						int y = tileElement.GetProperty("y").GetInt32();
+						var pos = HexCoordinates.CalculatePosition(x, y);
+						GD.Print($"  First tile at grid ({x}, {y}) -> world pos {pos}");
+					}
 				}
 				GD.Print($"✓ Created {tileCount} hex tiles");
 			}
@@ -113,10 +126,7 @@ public partial class WorldMap : Node3D
 			int industry = tileData.TryGetProperty("industry", out var iProp) ? iProp.GetInt32() : 0;
 
 			// Create visual hex mesh
-			var meshInstance = new MeshInstance3D();
-			var hexMesh = CreateHexMesh();
-			meshInstance.Mesh = hexMesh;
-
+			var meshInstance = new MeshInstance3D();		meshInstance.Mesh = hexMesh;
 			// Apply terrain material
 			if (terrainMaterials.TryGetValue(terrainType, out var material))
 			{
@@ -154,30 +164,28 @@ public partial class WorldMap : Node3D
 		}
 	}
 
-	private Mesh CreateHexMesh()
+	private void LoadHexMesh()
 	{
-		var meshBuilder = new MeshBuilder();
-		const float size = 0.5f;
-		const float height = 0.1f;
-
-		// Create hex shape in XZ plane
-		Vector3[] vertices = new Vector3[7];
-		vertices[0] = new Vector3(0, 0, 0); // center
-
-		for (int i = 0; i < 6; i++)
+		try
 		{
-			float angle = (i * 60f) * Mathf.Pi / 180f;
-			vertices[i + 1] = new Vector3(
-				Mathf.Cos(angle) * size,
-				0,
-				Mathf.Sin(angle) * size
-			);
+			var resource = GD.Load(HEX_MODEL_PATH);
+			if (resource is Mesh mesh)
+			{
+				hexMesh = mesh;
+				GD.Print($"✓ Loaded hex mesh from {HEX_MODEL_PATH}");
+				GD.Print($"  Mesh type: {mesh.GetType().Name}");
+			}
+			else
+			{
+				GD.PrintErr($"Failed to load hex mesh: resource type is {resource?.GetType().Name ?? "null"}, not a Mesh");
+				hexMesh = new BoxMesh { Size = new Vector3(0.8f, 0.1f, 0.8f) };
+			}
 		}
-
-		var mesh = new Mesh();
-		// For now, create a simple box placeholder
-		// TODO: Create proper hex geometry
-		return new BoxMesh { Size = new Vector3(0.8f, 0.1f, 0.8f) };
+		catch (Exception e)
+		{
+			GD.PrintErr($"Error loading hex mesh: {e.Message}");
+			hexMesh = new BoxMesh { Size = new Vector3(0.8f, 0.1f, 0.8f) };
+		}
 	}
 }
 

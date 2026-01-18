@@ -38,13 +38,15 @@ public partial class GameManager : Node
 		var worldmapScene = GD.Load<PackedScene>("res://scenes/worldmap.tscn");
 		if (worldmapScene != null)
 		{
+			GD.Print("✓ Scene file loaded, instantiating...");
 			var worldmap = worldmapScene.Instantiate();
+			GD.Print($"  Worldmap instance type: {worldmap.GetType().Name}");
 			AddChild(worldmap);
-			GD.Print("✓ worldmap scene loaded and instantiated");
+			GD.Print("✓ worldmap scene loaded and instantiated as child of GameManager");
 		}
 		else
 		{
-			GD.PrintErr("Failed to load worldmap.tscn");
+			GD.PrintErr("Failed to load worldmap.tscn - file not found");
 		}
 	}
 }
