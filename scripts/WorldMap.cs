@@ -126,7 +126,10 @@ public partial class WorldMap : Node3D
 			int industry = tileData.TryGetProperty("industry", out var iProp) ? iProp.GetInt32() : 0;
 
 			// Create visual hex mesh
-			var meshInstance = new MeshInstance3D();		meshInstance.Mesh = hexMesh;
+		var meshInstance = new MeshInstance3D();
+		meshInstance.Mesh = hexMesh;
+		meshInstance.Scale = new Vector3(0.25f, 0.25f, 0.25f);
+
 			// Apply terrain material
 			if (terrainMaterials.TryGetValue(terrainType, out var material))
 			{

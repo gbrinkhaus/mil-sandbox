@@ -14,8 +14,8 @@ public partial class GameConstants : Node
     public const int GRID_SIZE_Y = 92;
 
     // Hex geometry
-    public const float HEXAGON_WIDTH = 0.60f;
-    public const float HEXAGON_HEIGHT = 0.52f;
+    public const float HEXAGON_WIDTH = 1.0f;
+    public const float HEXAGON_HEIGHT = 0.866025403784f; // sqrt(3) / 2
     public const float SECTOR_WIDTH = HEXAGON_WIDTH * 0.75f;
 
     // Map positioning

@@ -2,24 +2,24 @@
 
 [ext_resource type="Script" uid="uid://nvhtlwe4u31m" path="res://scripts/WorldMap.cs" id="1_tahli"]
 [ext_resource type="Script" uid="uid://q2j1t57f4442" path="res://scripts/HexMesh.cs" id="2_pb1l4"]
+[ext_resource type="ArrayMesh" uid="uid://bq7x4k5nanj8p" path="res://models/3d_hex.obj" id="3_mqdrm"]
+[ext_resource type="Script" uid="uid://dt6ibe5gc6j52" path="res://scripts/CameraController.cs" id="3_pb1l4"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
-albedo_color = Color(0.4, 0.7, 0.3, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_hex"]
-material = SubResource("StandardMaterial3D_grass")
-top_radius = 2.0
-bottom_radius = 2.0
-height = 0.5
-radial_segments = 6
-
-[node name="HexTile" type="Node3D"]
+[node name="Worldmap" type="Node3D"]
 script = ExtResource("1_tahli")
 
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9633407, 0.26828098, 0, -0.26828098, 0.9633407, 2.5804439, 6.2283664, 8.07651)
+
 [node name="HexMesh" type="MeshInstance3D" parent="."]
-mesh = SubResource("CylinderMesh_hex")
+mesh = ExtResource("3_mqdrm")
 script = ExtResource("2_pb1l4")
 
+[node name="3dHex" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.916562, -0.2672062, -0.18022394)
+mesh = ExtResource("3_mqdrm")
+
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.47256616, 0.8812952, 0, -0.8812952, 0.47256616, 0.36140537, 11.62915, 8.07651)
-fov = 87.6
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.36140537, 6.2283664, 8.07651)
+fov = 125.22659
+script = ExtResource("3_pb1l4")
