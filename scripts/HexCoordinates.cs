@@ -2,6 +2,8 @@ using Godot;
 
 namespace MilSandbox.Scripts;
 
+using MilSandbox.Scripts.Autoload;
+
 /// <summary>
 /// Hex grid coordinate system utilities
 /// Handles position calculation, neighbor finding, and world wrapping
@@ -13,10 +15,10 @@ public static class HexCoordinates
 	/// </summary>
 	public static Vector3 CalculatePosition(int gridX, int gridY)
 	{
-		var xPos = (GameConstants.HEXAGON_WIDTH * gridX * 1.5f + 
-					GameConstants.SECTOR_WIDTH * (gridY % 2)) + GameConstants.MAP_X;
-		var yPos = -(GameConstants.HEXAGON_HEIGHT * gridY / 2.0f) + GameConstants.MAP_Y;
-		return new Vector3(xPos, GameConstants.MAP_Y_LEVEL, yPos);
+		var xPos = (Autoload.GameConstants.HEXAGON_WIDTH * gridX * 1.5f + 
+					Autoload.GameConstants.SECTOR_WIDTH * (gridY % 2)) + Autoload.GameConstants.MAP_X;
+		var zPos = (Autoload.GameConstants.HEXAGON_HEIGHT * gridY / 2.0f) + Autoload.GameConstants.MAP_Y;
+		return new Vector3(xPos, Autoload.GameConstants.MAP_Y_LEVEL, zPos);
 	}
 
 	/// <summary>
@@ -53,10 +55,10 @@ public static class HexCoordinates
 	{
 		if (x < 0)
 		{
-			return GameConstants.GRID_SIZE_X - 1;
+			return Autoload.GameConstants.GRID_SIZE_X - 1;
 		}
 		
-		if (x >= GameConstants.GRID_SIZE_X)
+		if (x >= Autoload.GameConstants.GRID_SIZE_X)
 		{
 			return 0;
 		}
@@ -71,7 +73,7 @@ public static class HexCoordinates
 	{
 		// X is always valid due to wrapping
 		// Only check Y bounds
-		return y >= 0 && y < GameConstants.GRID_SIZE_Y;
+		return y >= 0 && y < Autoload.GameConstants.GRID_SIZE_Y;
 	}
 
 	/// <summary>
