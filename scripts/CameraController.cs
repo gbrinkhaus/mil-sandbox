@@ -9,16 +9,38 @@ namespace MilSandbox.Scripts;
 /// </summary>
 public partial class CameraController : Camera3D
 {
-	private const float PAN_SPEED = 20f;
-	private const float ZOOM_SPEED = 5f;
-	private const float MIN_FOV = 10f;
-	private const float MAX_FOV = 90f;
+	private const int PAN_SPEED = 20;
+	private const int ZOOM_SPEED = 5;
+	private const int MIN_FOV = 10;
+	private const int MAX_FOV = 90;
 	private const float MOUSE_PAN_SPEED = 0.1f;
 	private const float MOUSE_ROTATE_SPEED = 0.01f;
+	
+	// Keyboard acceleration/deceleration
+	private const float KEYBOARD_ACCELERATION = 60f;
+	private const float KEYBOARD_MAX_SPEED = 30f;
+	private const float KEYBOARD_DECELERATION = 100f;
+	
+	// Mouse acceleration/deceleration
+	private const float MOUSE_PAN_ACCELERATION = 500f;
+	private const float MOUSE_PAN_MAX_SPEED = 500f;
+	private const float MOUSE_PAN_DECELERATION = 2000f;
+	private const float MOUSE_ROTATE_ACCELERATION = 200f;
+	private const float MOUSE_ROTATE_MAX_SPEED = 50f;
+	private const float MOUSE_ROTATE_DECELERATION = 1000f;
+	private const float MOUSE_ZOOM_ACCELERATION = 5000f;
+	private const float MOUSE_ZOOM_MAX_SPEED = 3000f;
+	private const float MOUSE_ZOOM_DECELERATION = 20000f;
 	
 	private bool middleMousePressed = false;
 	private bool rightMousePressed = false;
 	private Vector2 lastMousePos = Vector2.Zero;
+	private Vector2 mouseMotionDelta = Vector2.Zero;  // Accumulated mouse motion delta
+	private Vector3 keyboardVelocity = Vector3.Zero;  // Current keyboard movement velocity
+	private Vector3 mousePanVelocity = Vector3.Zero;  // Current mouse pan velocity
+	private Vector3 mouseRotateVelocity = Vector3.Zero;  // Current mouse rotation velocity
+	private float mouseZoomVelocity = 0f;  // Current mouse zoom velocity
+	private int mouseZoomDirection = 0;  // 1 for zoom in, -1 for zoom out, 0 for none
 
 	public override void _Ready()
 	{
@@ -32,6 +54,7 @@ public partial class CameraController : Camera3D
 
 	private void HandlePanning(float delta)
 	{
+		// KEYBOARD MOVEMENT
 		var input = Vector3.Zero;
 
 		if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up))
@@ -45,8 +68,65 @@ public partial class CameraController : Camera3D
 
 		if (input != Vector3.Zero)
 		{
-			Position += input.Normalized() * PAN_SPEED * delta;
+			// Accelerate velocity toward max speed
+			input = input.Normalized();
+			var targetVelocity = input * KEYBOARD_MAX_SPEED;
+			keyboardVelocity = keyboardVelocity.Lerp(targetVelocity, KEYBOARD_ACCELERATION * delta / KEYBOARD_MAX_SPEED);
 		}
+		else
+		{
+			// Decelerate velocity when no keys pressed
+			keyboardVelocity = keyboardVelocity.Lerp(Vector3.Zero, KEYBOARD_DECELERATION * delta / KEYBOARD_MAX_SPEED);
+		}
+
+		// Apply keyboard velocity to position
+		Position += keyboardVelocity * delta;
+
+		// MOUSE MOVEMENT
+		if (middleMousePressed && mouseMotionDelta != Vector2.Zero)
+		{
+			// Accelerate pan velocity
+			var targetPanDir = new Vector3(-mouseMotionDelta.X, 0, -mouseMotionDelta.Y).Normalized();
+			var targetPanVel = targetPanDir * MOUSE_PAN_MAX_SPEED;
+			mousePanVelocity = mousePanVelocity.Lerp(targetPanVel, MOUSE_PAN_ACCELERATION * delta / MOUSE_PAN_MAX_SPEED);
+			mouseMotionDelta = Vector2.Zero;
+		}
+		else if (!middleMousePressed)
+		{
+			// Decelerate pan velocity
+			mousePanVelocity = mousePanVelocity.Lerp(Vector3.Zero, MOUSE_PAN_DECELERATION * delta / MOUSE_PAN_MAX_SPEED);
+		}
+		Position += mousePanVelocity * MOUSE_PAN_SPEED * delta;
+
+		if (rightMousePressed && mouseMotionDelta != Vector2.Zero)
+		{
+			// Accelerate rotation velocity
+			var targetRotDir = new Vector3(-mouseMotionDelta.Y, -mouseMotionDelta.X, 0);
+			var targetRotVel = targetRotDir * MOUSE_ROTATE_MAX_SPEED;
+			mouseRotateVelocity = mouseRotateVelocity.Lerp(targetRotVel, MOUSE_ROTATE_ACCELERATION * delta / MOUSE_ROTATE_MAX_SPEED);
+			mouseMotionDelta = Vector2.Zero;
+		}
+		else if (!rightMousePressed)
+		{
+			// Decelerate rotation velocity
+			mouseRotateVelocity = mouseRotateVelocity.Lerp(Vector3.Zero, MOUSE_ROTATE_DECELERATION * delta / MOUSE_ROTATE_MAX_SPEED);
+		}
+		Rotation += mouseRotateVelocity * MOUSE_ROTATE_SPEED * delta;
+
+		// MOUSE ZOOM
+		if (mouseZoomDirection != 0)
+		{
+			// Accelerate zoom velocity
+			var targetZoomVel = mouseZoomDirection * MOUSE_ZOOM_MAX_SPEED;
+			mouseZoomVelocity = Mathf.Lerp(mouseZoomVelocity, targetZoomVel, MOUSE_ZOOM_ACCELERATION * delta / MOUSE_ZOOM_MAX_SPEED);
+		}
+		else
+		{
+			// Decelerate zoom velocity
+			mouseZoomVelocity = Mathf.Lerp(mouseZoomVelocity, 0f, MOUSE_ZOOM_DECELERATION * delta / MOUSE_ZOOM_MAX_SPEED);
+		}
+		Fov += mouseZoomVelocity * delta;
+		Fov = Mathf.Clamp(Fov, MIN_FOV, MAX_FOV);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -67,35 +147,30 @@ public partial class CameraController : Camera3D
 			}
 			else if (mouseEvent.ButtonIndex == MouseButton.WheelUp && mouseEvent.Pressed)
 			{
-				Fov = Mathf.Max(Fov - ZOOM_SPEED, MIN_FOV);
+				mouseZoomDirection = -1;  // Zoom in (decrease FOV)
 				GetTree().Root.SetInputAsHandled();
+			}
+			else if (mouseEvent.ButtonIndex == MouseButton.WheelUp && !mouseEvent.Pressed)
+			{
+				mouseZoomDirection = 0;
 			}
 			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown && mouseEvent.Pressed)
 			{
-				Fov = Mathf.Min(Fov + ZOOM_SPEED, MAX_FOV);
+				mouseZoomDirection = 1;  // Zoom out (increase FOV)
 				GetTree().Root.SetInputAsHandled();
+			}
+			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown && !mouseEvent.Pressed)
+			{
+				mouseZoomDirection = 0;
 			}
 		}
 		else if (@event is InputEventMouseMotion mouseMotion)
 		{
 			var delta = mouseMotion.Position - lastMousePos;
 			
-			if (middleMousePressed)
+			if (middleMousePressed || rightMousePressed)
 			{
-				// Middle mouse: pan X/Z
-				var newPos = Position;
-				newPos.X -= delta.X * MOUSE_PAN_SPEED;
-				newPos.Z -= delta.Y * MOUSE_PAN_SPEED;
-				Position = newPos;
-				GetTree().Root.SetInputAsHandled();
-			}
-			else if (rightMousePressed)
-			{
-				// Right mouse: rotate camera angle
-				var rotation = Rotation;
-				rotation.Y -= delta.X * MOUSE_ROTATE_SPEED;  // Left/right yaw
-				rotation.X -= delta.Y * MOUSE_ROTATE_SPEED;  // Up/down pitch
-				Rotation = rotation;
+				mouseMotionDelta += delta;
 				GetTree().Root.SetInputAsHandled();
 			}
 			
