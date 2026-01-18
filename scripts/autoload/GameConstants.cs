@@ -19,8 +19,8 @@ public partial class GameConstants : Node
     public const float SECTOR_WIDTH = HEXAGON_WIDTH * 0.75f;
 
     // Map positioning
-    public const int MAP_X = -10;
-    public const int MAP_Y = 5;
+    public const int MAP_X = 2;
+    public const int MAP_Z = 2;
     public const float MAP_Y_LEVEL = 0.51f;
 
     // Game constants

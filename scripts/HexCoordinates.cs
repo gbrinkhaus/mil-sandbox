@@ -17,7 +17,7 @@ public static class HexCoordinates
 	{
 		var xPos = (Autoload.GameConstants.HEXAGON_WIDTH * gridX * 1.5f + 
 					Autoload.GameConstants.SECTOR_WIDTH * (gridY % 2)) + Autoload.GameConstants.MAP_X;
-		var yPos = (Autoload.GameConstants.HEXAGON_HEIGHT * gridY / 2.0f) + Autoload.GameConstants.MAP_Y;
+		var yPos = (Autoload.GameConstants.HEXAGON_HEIGHT * gridY / 2.0f) + Autoload.GameConstants.MAP_Z;
 		return new Vector3(xPos, Autoload.GameConstants.MAP_Y_LEVEL, yPos);
 	}
 
