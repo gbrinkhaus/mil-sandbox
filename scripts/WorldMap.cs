@@ -56,18 +56,21 @@ public partial class WorldMap : Node3D
 		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
 		{
 			GD.Print($"CLICK DETECTED at mouse pos: {GetViewport().GetMousePosition()}");
-			HandleTileClick();
-			GetTree().Root.SetInputAsHandled();
+			if (HandleTileClick())
+			{
+				// Only consume input if we actually hit a tile
+				GetTree().Root.SetInputAsHandled();
+			}
 		}
 	}
 
-	private void HandleTileClick()
+	private bool HandleTileClick()
 	{
 		var camera = GetViewport().GetCamera3D();
 		if (camera == null) 
 		{
 			GD.Print("ERROR: Camera is null!");
-			return;
+			return false;
 		}
 
 		var mousePos = GetViewport().GetMousePosition();
@@ -90,21 +93,25 @@ public partial class WorldMap : Node3D
 			{
 				if (colliderObj.Obj is StaticBody3D tile)
 				{
-					if (tile.HasMeta("country"))
+					// Extract tile data
+					var gridX = tile.GetMeta("grid_x", -1).AsInt32();
+					var gridY = tile.GetMeta("grid_y", -1).AsInt32();
+					var terrainType = tile.GetMeta("terrain_type", -1).AsInt32();
+					var country = tile.GetMeta("country", "").AsString();
+					
+					// Always store grid coordinates when a tile is clicked
+					SelectedGridX = gridX;
+					SelectedGridY = gridY;
+					SelectedTerrainType = terrainType;
+					SelectedCountry = country;
+					
+					// Highlight the country if it has one
+					if (!string.IsNullOrEmpty(country))
 					{
-						var country = tile.GetMeta("country", "").AsString();
-						var terrainType = tile.GetMeta("terrain_type", -1).AsInt32();
-						var gridX = tile.GetMeta("grid_x", -1).AsInt32();
-						var gridY = tile.GetMeta("grid_y", -1).AsInt32();
-						if (!string.IsNullOrEmpty(country))
-						{
-							SelectedCountry = country;
-							SelectedTerrainType = terrainType;
-							SelectedGridX = gridX;
-							SelectedGridY = gridY;
-							HighlightCountry(country);
-						}
+						HighlightCountry(country);
 					}
+					
+					return true;
 				}
 			}
 		}
@@ -112,6 +119,8 @@ public partial class WorldMap : Node3D
 		{
 			GD.Print("Raycast returned no results!");
 		}
+		
+		return false;
 	}
 
 	private void HighlightCountry(string country)

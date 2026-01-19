@@ -5,6 +5,7 @@ namespace MilSandbox.Scripts;
 public partial class MenuBar : PanelContainer
 {
 	private Label debugLabel;
+	private Label tileInfoLabel;
 	private WorldMap worldMap;
 	private OptionButton terrainTypeDropdown;
 	private OptionButton countryDropdown;
@@ -14,94 +15,87 @@ public partial class MenuBar : PanelContainer
 	{
 		GD.Print("MenuBar._Ready starting");
 		
-		// Setup as CanvasLayer for UI rendering
-		var canvasLayer = new CanvasLayer();
-		GetParent().AddChild(canvasLayer);
-		GetParent().MoveChild(this, GetParent().GetChildCount() - 1);
-
-		// Set anchors and grow to fill full width
-		AnchorLeft = 0.0f;
-		AnchorRight = 1.0f;
-		AnchorTop = 0.0f;
-		AnchorBottom = 0.0f;
+		// Setup PanelContainer to fill top of screen
+		AnchorLeft = 0f;
+		AnchorTop = 0f;
+		AnchorRight = 1f;
+		AnchorBottom = 0f;
+		OffsetTop = 0;
 		OffsetBottom = 50;
-		GrowHorizontal = Control.GrowDirection.Both;
+		CustomMinimumSize = new Vector2(0, 50);
+		
+		// Main horizontal layout
+		var mainBox = new HBoxContainer();
+		mainBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		mainBox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		AddChild(mainBox);
 
-		// Create horizontal box for single-line layout
-		var hboxContainer = new HBoxContainer();
-		hboxContainer.GrowHorizontal = Control.GrowDirection.Both;
-		AddChild(hboxContainer);
-
-		// Debug info label (left side)
+		// Left: Debug label (camera info)
 		debugLabel = new Label 
 		{ 
-			Text = "FPS: 0 | Cam Pos: (0, 0, 0) | Rot: (0, 0, 0) | FOV: 0",
-			CustomMinimumSize = new Vector2(0, 24),
-			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+			Text = "Debug Info",
+			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+			SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+			CustomMinimumSize = new Vector2(0, 20)
 		};
-		hboxContainer.AddChild(debugLabel);
+		mainBox.AddChild(debugLabel);
 
-		// Spacer
+		// Spacer (takes remaining space, naturally pushes children after it to the right)
 		var spacer = new Control();
 		spacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		hboxContainer.AddChild(spacer);
+		mainBox.AddChild(spacer);
 
-		// Right side controls
-		var rightBox = new HBoxContainer();
-		rightBox.CustomMinimumSize = new Vector2(300, 24);
-		hboxContainer.AddChild(rightBox);
+		// Tile info label (right side, no special flags)
+		tileInfoLabel = new Label
+		{
+			Text = "Tile: none",
+			SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+			CustomMinimumSize = new Vector2(250, 20)
+		};
+		mainBox.AddChild(tileInfoLabel);
 
-		// Terrain type dropdown
+		// Terrain dropdown (right side)
 		terrainTypeDropdown = new OptionButton();
-		foreach (var terrainName in Autoload.GameConstants.FIELD_NAMES)
-		{
-			terrainTypeDropdown.AddItem(terrainName);
-		}
-		terrainTypeDropdown.CustomMinimumSize = new Vector2(120, 24);
+		terrainTypeDropdown.CustomMinimumSize = new Vector2(100, 24);
+		terrainTypeDropdown.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+		terrainTypeDropdown.Show();
+		foreach (var name in Autoload.GameConstants.FIELD_NAMES)
+			terrainTypeDropdown.AddItem(name);
 		terrainTypeDropdown.ItemSelected += OnTerrainTypeChanged;
-		rightBox.AddChild(terrainTypeDropdown);
+		mainBox.AddChild(terrainTypeDropdown);
+		GD.Print("✓ Terrain dropdown added");
 
-		// Country dropdown
+		// Country dropdown (right side)
 		countryDropdown = new OptionButton();
-		countryDropdown.CustomMinimumSize = new Vector2(150, 24);
+		countryDropdown.CustomMinimumSize = new Vector2(100, 24);
+		countryDropdown.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+		countryDropdown.Show();
 		countryDropdown.ItemSelected += OnCountryChanged;
-		rightBox.AddChild(countryDropdown);
+		mainBox.AddChild(countryDropdown);
+		GD.Print("✓ Country dropdown added");
 
-		// Setup panel styling
-		CustomMinimumSize = new Vector2(0, 50);
-
-		GD.Print("✓ MenuBar initialized");
-	}
-
-	public override void _Input(InputEvent @event)
-	{
-		// Consume all input that happens over the menu bar
-		if (@event is InputEventMouseButton mouseEvent && GetGlobalRect().HasPoint(GetViewport().GetMousePosition()))
-		{
-			GetTree().Root.SetInputAsHandled();
-		}
+		GD.Print("✓ MenuBar layout complete");
 	}
 
 	public override void _Process(double delta)
 	{
 		var camera = GetViewport().GetCamera3D();
-		var debugParts = new System.Collections.Generic.List<string>();
+		var cameraParts = new System.Collections.Generic.List<string>();
+		var tileParts = new System.Collections.Generic.List<string>();
 		
-		// FPS
-		debugParts.Add($"FPS: {Engine.GetFramesPerSecond()}");
-		
-		// Camera info
+		// Camera info (left)
+		cameraParts.Add($"FPS: {Engine.GetFramesPerSecond()}");
 		if (camera != null)
 		{
 			var pos = camera.GlobalPosition;
 			var rot = camera.Rotation;
 			var fov = camera.Fov;
-			debugParts.Add($"Pos: ({pos.X:F1}, {pos.Y:F1}, {pos.Z:F1})");
-			debugParts.Add($"Rot: ({rot.X:F2}, {rot.Y:F2}, {rot.Z:F2})");
-			debugParts.Add($"FOV: {fov:F1}");
+			cameraParts.Add($"Pos: ({pos.X:F1}, {pos.Y:F1}, {pos.Z:F1})");
+			cameraParts.Add($"Rot: ({rot.X:F2}, {rot.Y:F2}, {rot.Z:F2})");
+			cameraParts.Add($"FOV: {fov:F1}");
 		}
 		
-		// Selected tile info
+		// Selected tile info (right)
 		worldMap = GameManager.CurrentWorldMap;
 		if (worldMap != null)
 		{
@@ -111,8 +105,15 @@ public partial class MenuBar : PanelContainer
 				worldMap.PopulateCountryDropdown(countryDropdown);
 			}
 			
-			if (!string.IsNullOrEmpty(worldMap.SelectedCountry))
+			// Show tile info if a tile is selected
+			if (worldMap.SelectedGridX >= 0 && worldMap.SelectedGridY >= 0)
 			{
+				var terrainName = Autoload.GameConstants.GetTerrainName(worldMap.SelectedTerrainType);
+				tileParts.Add($"Tile: ({worldMap.SelectedGridX}, {worldMap.SelectedGridY})");
+				tileParts.Add($"Terrain: {terrainName}");
+				if (!string.IsNullOrEmpty(worldMap.SelectedCountry))
+					tileParts.Add($"Country: {worldMap.SelectedCountry}");
+				
 				// Update UI fields if not currently being edited
 				if (!updatingUI)
 				{
@@ -131,19 +132,10 @@ public partial class MenuBar : PanelContainer
 					updatingUI = false;
 				}
 			}
-			else
-			{
-				if (!updatingUI)
-				{
-					updatingUI = true;
-					terrainTypeDropdown.Selected = -1;
-					countryDropdown.Selected = -1;
-					updatingUI = false;
-				}
-			}
 		}
 		
-		debugLabel.Text = string.Join(" | ", debugParts);
+		debugLabel.Text = string.Join(" | ", cameraParts);
+		tileInfoLabel.Text = tileParts.Count > 0 ? string.Join(" | ", tileParts) : "Tile: none";
 	}
 
 	private void OnTerrainTypeChanged(long index)
