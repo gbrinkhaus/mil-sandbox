@@ -10,8 +10,8 @@ namespace MilSandbox.Scripts.Autoload;
 public partial class GameConstants : Node
 {
     // Grid configuration
-    public const int GRID_SIZE_X = 46;
-    public const int GRID_SIZE_Y = 92;
+    public const int GRID_SIZE_X = 92;
+    public const int GRID_SIZE_Y = 184;
 
     // Hex geometry
     public const float HEXAGON_WIDTH = 1.0f;
